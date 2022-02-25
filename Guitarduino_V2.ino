@@ -87,6 +87,11 @@ boolean selectorSelected = false;
 #define SDCARD_SCK_PIN   14
 File sd;
 
+String fileList[20];
+int fileNum = 0;
+int backingTrackState = 0; //0=Stopped 1=Playing  2=Paused
+int fileCount = 0;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -157,7 +162,40 @@ void loop() {
         menuRecord();
       }
       else if (currentPage == "menuRecord") {
+        menuBackingTrack();
+      }
+      else if(currentPage == "menuBackingTrack") {
         menuMetronome();
+      }
+      else if(currentPage == "fnBackingTrack") {
+        if(selectorSelected == false) {
+          if(selectorValue < 3) {
+            selectorValue ++;
+            fnBackingTrack();
+            switch(selectorValue) {
+              case 0:
+               display.setCursor(0, 0);
+               display.setTextColor(BLUE, BLACK);
+               display.setTextSize(1);
+               display.println("<<<");
+               break;
+              case 1:
+                display.setCursor(14, 15);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(2);
+                display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+            }
+          }
+        }
+        else {
+          if(fileNum < fileCount-1) {
+            fileNum ++;
+          }
+          display.setCursor(14, 15);
+          display.setTextColor(WHITE, BLUE);
+          display.setTextSize(2);
+          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+        }
       }
       else if (currentPage == "fnMetronome") {
         if (selectorSelected == false) {
@@ -248,8 +286,41 @@ void loop() {
       else if (currentPage == "menuRecord") {
         menuTuner();
       }
-      else if (currentPage == "menuMetronome") {
+      else if(currentPage == "menuBackingTrack") {
         menuRecord();
+      }
+      else if(currentPage == "fnBackingTrack") {
+        if(selectorSelected == false) {
+          if(selectorValue > 0) {
+            selectorValue --;
+            fnBackingTrack();
+            switch(selectorValue) {
+              case 0:
+               display.setCursor(0, 0);
+               display.setTextColor(BLUE, BLACK);
+               display.setTextSize(1);
+               display.println("<<<");
+               break;
+              case 1:
+                display.setCursor(14, 15);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(2);
+                display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+            }
+          }
+        }
+        else {
+          if(fileNum > 0) {
+            fileNum --;
+          }
+          display.setCursor(14, 15);
+          display.setTextColor(WHITE, BLUE);
+          display.setTextSize(2);
+          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+        }
+      }
+      else if (currentPage == "menuMetronome") {
+        menuBackingTrack();
       }
       else if (currentPage == "fnMetronome") {
         if (selectorSelected == false) {
@@ -344,6 +415,38 @@ void loop() {
       else if (currentPage == "fnTuner") {
         menuTuner();
       }
+      else if(currentPage == "menuBackingTrack") {
+        display.fillScreen(BLACK);
+        fnBackingTrack();
+        display.setCursor(0, 0);
+        display.setTextColor(BLUE, BLACK);
+        display.setTextSize(1);
+        display.println("<<<");
+      }
+      else if(currentPage == "fnBackingTrack") {
+        if(selectorSelected == false) {
+          switch(selectorValue) {
+            case 0:
+              menuBackingTrack();
+              break;
+            case 1:
+              display.setCursor(14, 15);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+              selectorSelected = true;
+              break;
+          }
+          
+        }
+        else {
+          display.setCursor(14, 15);
+          display.setTextColor(WHITE, BLACK);
+          display.setTextSize(2);
+          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+          selectorSelected = false;
+        }
+      }
       else if (currentPage == "menuMetronome") {
         display.fillScreen(BLACK);
         selectorValue = 0;
@@ -354,6 +457,7 @@ void loop() {
         display.println("<<<");
       }
       else if (currentPage == "fnMetronome") {
+      
         if (selectorSelected == false) {
           switch (selectorValue) {
             case 0:
@@ -508,6 +612,11 @@ void menuRecord() {
   display.drawBitmap(0, 0, Record, 160, 80, WHITE);
 }
 
+void menuBackingTrack() {
+  currentPage = "menuBackingTrack";
+  display.fillScreen(BLACK);
+  display.drawBitmap(0, 0, BackingTrack, 160, 80, WHITE);
+}
 void menuMetronome() {
   currentPage = "menuMetronome";
   display.fillScreen(BLACK);
@@ -565,6 +674,51 @@ void fnTuner() {
       display.setTextColor(WHITE, BLACK);
     }
     display.print(String(guitarNotes[closestNote]));
+  }
+}
+
+void fnBackingTrack() {
+  currentPage = "fnBackingTrack";
+  refreshSD();
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE, BLACK);
+  display.setTextSize(1);
+  display.print("<<<");
+  display.setCursor(14, 15);
+  display.setTextSize(2);
+  display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+  display.fillRect(56, 50, 12, 15, BLACK);
+  display.fillRect(89, 50, 15, 15, WHITE);
+  switch(backingTrackState) {
+    case 0:
+      display.fillTriangle(56, 50, 56, 65, 68, 57, WHITE);
+      break;
+    case 1:
+      display.fillRect(56, 50, 4, 15, WHITE);
+      display.fillRect(64, 50, 4, 15, WHITE);
+      break;
+  }
+}
+
+void refreshSD() {
+  int i = 0;
+  while(true) {
+    File entry = sd.openNextFile();
+    if(i > 19) {
+      break;
+    }
+    if(!entry) {
+      break;
+    }
+    if(!entry.isDirectory()) {
+      if(String(entry.name()) != "RECORD.RAW") {
+        fileList[i] = entry.name();
+        Serial.println(fileList[i]);
+        i++;
+      }
+    }
+    entry.close();
+    fileCount = i;
   }
 }
 
