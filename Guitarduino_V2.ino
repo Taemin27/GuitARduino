@@ -16,26 +16,30 @@
 
 // GUItool: begin automatically generated code
 AudioTuner               tuner;
-AudioSynthSimpleDrum     drum2;          //xy=462.5,917
-AudioSynthSimpleDrum     drum1;          //xy=468.5,863
-AudioPlaySdWav           playSdWav1;     //xy=486.50000762939453,727.0000104904175
-AudioPlaySdRaw           playSdRaw1;     //xy=489.50000762939453,786.0000114440918
-AudioMixer4              mixer_wav;         //xy=785.0000076293945,744.0000114440918
-AudioMixer4              mixer_metronome;         //xy=786.5000076293945,827.0000114440918
-AudioInputI2S            i2s1;           //xy=804.5000076293945,898.0000133514404
-AudioMixer4              mixer_master;         //xy=1022.5000114440918,791.0000114440918
-AudioOutputI2S           i2s2;           //xy=1224.500015258789,783.0000114440918
+AudioSynthSimpleDrum     drum2;          //xy=606,1030
+AudioSynthSimpleDrum     drum1;          //xy=607,978
+AudioPlaySdRaw           playSdRaw1;     //xy=629,899
+AudioPlaySdWav           playSdWav1;     //xy=630,840
+AudioMixer4              mixer_wav;      //xy=929,857
+AudioMixer4              mixer_metronome; //xy=930,940
+AudioInputI2S            i2s1;           //xy=948,1011
+AudioMixer4              mixer_master;   //xy=1166,904
+AudioRecordQueue         queue1;         //xy=1374,943
+AudioOutputI2S           i2s2;           //xy=1375,900
+AudioAnalyzeFFT1024      fft1;      //xy=1381,853
 AudioConnection          patchCord1(drum2, 0, mixer_metronome, 1);
 AudioConnection          patchCord2(drum1, 0, mixer_metronome, 0);
-AudioConnection          patchCord3(playSdWav1, 0, mixer_wav, 0);
-AudioConnection          patchCord4(playSdWav1, 1, mixer_wav, 1);
-AudioConnection          patchCord5(playSdRaw1, 0, mixer_master, 1);
+AudioConnection          patchCord3(playSdRaw1, 0, mixer_master, 1);
+AudioConnection          patchCord4(playSdWav1, 0, mixer_wav, 0);
+AudioConnection          patchCord5(playSdWav1, 1, mixer_wav, 1);
 AudioConnection          patchCord6(mixer_wav, 0, mixer_master, 0);
 AudioConnection          patchCord7(mixer_metronome, 0, mixer_master, 2);
 AudioConnection          patchCord8(i2s1, 1, mixer_master, 3);
 AudioConnection          patchCord9(mixer_master, 0, i2s2, 1);
-AudioConnection          patchCord10(i2s1, 1, tuner, 0);
-AudioControlSGTL5000     sgtl5000_1;
+AudioConnection          patchCord10(mixer_master, queue1);
+AudioConnection          patchCord11(mixer_master, fft1);
+AudioConnection          patchCord12(i2s1, 1, tuner, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=653,740
 // GUItool: end automatically generated code
 // GUItool: end automatically generated code
 
@@ -88,6 +92,7 @@ boolean selectorSelected = false;
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 File sd;
+File frec;
 
 String fileList[20];
 int fileNum = 0;
@@ -96,6 +101,8 @@ int fileCount = 0;
 
 float wavVolume = 5;
 float metronomeVolume = 5;
+
+int mode = 0;  // 0=stopped, 1=recording, 2=playing
 
 void setup() {
   // put your setup code here, to run once:
@@ -173,6 +180,44 @@ void loop() {
       }
       else if (currentPage == "menuRecord") {
         menuBackingTrack();
+      }
+      else if(currentPage == "fnRecord") {
+        if(selectorValue < 4) {
+          selectorValue ++;
+        }
+        fnRecord();
+        switch(selectorValue) {
+          case 0:
+            display.setTextSize(1);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 0);
+            display.println("<<<");
+            break;
+          case 1:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 14);
+            display.println("Start REC");
+            break;
+          case 2:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 30);
+            display.println("Stop REC");
+            break;
+          case 3:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 46);
+            display.println("Playback");
+            break;
+          case 4:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 62);
+            display.println("Stop Playback");
+            break;
+        }
       }
       else if (currentPage == "menuBackingTrack") {
         menuMetronome();
@@ -335,6 +380,44 @@ void loop() {
       }
       else if (currentPage == "menuRecord") {
         menuTuner();
+      }
+      else if(currentPage == "fnRecord") {
+        if(selectorValue > 0) {
+          selectorValue --;
+        }
+        fnRecord();
+        switch(selectorValue) {
+          case 0:
+            display.setTextSize(1);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 0);
+            display.println("<<<");
+            break;
+          case 1:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 14);
+            display.println("Start REC");
+            break;
+          case 2:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 30);
+            display.println("Stop REC");
+            break;
+          case 3:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 46);
+            display.println("Playback");
+            break;
+          case 4:
+            display.setTextSize(2);
+            display.setTextColor(BLUE, BLACK);
+            display.setCursor(0, 62);
+            display.println("Stop Playback");
+            break;
+        }
       }
       else if (currentPage == "menuBackingTrack") {
         menuRecord();
@@ -504,6 +587,48 @@ void loop() {
       }
       else if (currentPage == "fnTuner") {
         menuTuner();
+      }
+      else if(currentPage == "menuRecord") {
+        display.fillScreen(BLACK);
+        fnRecord();
+        display.setCursor(0, 0);
+        display.setTextColor(BLUE, BLACK);
+        display.setTextSize(1);
+        display.println("<<<");
+      }
+      else if(currentPage == "fnRecord") {
+        switch(selectorValue) {
+          case 0:
+            menuRecord();
+            break;
+          case 1:
+            if (mode == 2) stopPlaying();
+            if (mode == 0) {
+              startRecording();
+              display.fillCircle(154, 3, 3, RED);
+            }
+            break;
+          case 2:
+            if (mode == 1) {
+              stopRecording();
+              display.fillCircle(154, 3, 3, BLACK);
+            }
+            break;
+          case 3:
+            if (mode == 1) {
+              stopRecording();
+              display.fillCircle(154, 3, 3, BLACK);
+            }
+            if (mode == 0) {
+              startPlaying();
+              display.fillCircle(154, 3, 3, YELLOW);
+            }
+            break;
+          case 4:
+            stopPlaying();
+            display.fillCircle(154, 3, 3, BLACK);
+            break;
+        }
       }
       else if (currentPage == "menuBackingTrack") {
         display.fillScreen(BLACK);
@@ -708,6 +833,12 @@ void loop() {
       metronomePreviousMillis += 60000 / bpmin;
     }
   }
+  if (mode == 2) {
+    continuePlaying();
+  }
+  if (mode == 1) {
+    continueRecording();
+  }
 }
 
 void menuEffects() {
@@ -793,6 +924,31 @@ void fnTuner() {
   }
 }
 
+void fnRecord() {
+  currentPage = "fnRecord";
+  display.setTextSize(1);
+  display.setTextColor(WHITE, BLACK);
+  display.setCursor(0, 0);
+  display.println("<<<");
+  display.setCursor(0, 14);
+  display.setTextSize(2);
+  display.println("Start REC");
+  display.println("Stop REC");
+  display.println("Playback");
+  display.println("Stop Playback");
+  display.fillCircle(117, 21, 7, RED);
+  display.fillRoundRect(98, 31, 13, 13, 2, RED);
+  if(mode == 1) {
+    display.fillCircle(154, 3, 3, RED);
+  }
+  else if(mode == 2) {
+    display.fillCircle(154, 3, 3, YELLOW);
+  }
+  else {
+    display.fillCircle(154, 3, 3, BLACK);
+  }
+}
+
 void fnBackingTrack() {
   currentPage = "fnBackingTrack";
   display.setCursor(0, 0);
@@ -805,6 +961,7 @@ void fnBackingTrack() {
   display.fillRect(56, 50, 12, 15, BLACK);
   display.fillRect(89, 50, 15, 15, WHITE);
   display.setCursor(30, 50);
+  display.drawBitmap(7, 50, Volume, 20, 14, WHITE);
   display.print(String(wavVolume).substring(0, 1));
   switch (backingTrackState) {
     case 0:
@@ -881,7 +1038,62 @@ void fnMetronome() {
   }
 }
 
+void startRecording() {
+  Serial.println("startRecording");
+  if (SD.exists("RECORD.RAW")) {
+    SD.remove("RECORD.RAW");
+  }
+  frec = SD.open("RECORD.RAW", FILE_WRITE);
+  if (frec) {
+    queue1.begin();
+    mode = 1;
+  }
+}
 
+void continueRecording() {
+  if (queue1.available() >= 2) {
+    byte buffer[512];
+    memcpy(buffer, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    memcpy(buffer+256, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    frec.write(buffer, 512);
+  }
+}
+
+void stopRecording() {
+  Serial.println("stopRecording");
+  queue1.end();
+  if (mode == 1) {
+    while (queue1.available() > 0) {
+      frec.write((byte*)queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+    }
+    frec.close();
+  }
+  mode = 0;
+}
+
+void startPlaying() {
+  Serial.println("startPlaying");
+  playSdRaw1.play("RECORD.RAW");
+  mode = 2;
+}
+
+void continuePlaying() {
+  if (!playSdRaw1.isPlaying()) {
+    playSdRaw1.stop();
+    mode = 0;
+  }
+}
+
+void stopPlaying() {
+  Serial.println("stopPlaying");
+  if (mode == 2) {
+    playSdRaw1.stop();
+    mode = 0;
+  }
+}
 
 void playBgm() {
   if (!playSdWav1.isPlaying()) {
