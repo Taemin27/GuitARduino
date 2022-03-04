@@ -16,24 +16,26 @@
 
 // GUItool: begin automatically generated code
 AudioTuner               tuner;
-AudioPlaySdWav           playSdWav1;     //xy=768,855
-AudioPlaySdRaw           playSdRaw1;     //xy=771,904
-AudioInputI2S            i2s1;           //xy=864,785
-AudioMixer4              mixer2;         //xy=940,869
-AudioSynthSimpleDrum     drum1;          //xy=950,695
-AudioSynthSimpleDrum     drum2;          //xy=950,737
-AudioMixer4              mixer1;         //xy=1089,763
-AudioOutputI2S           i2s2;           //xy=1251,761
-AudioConnection          patchCord1(playSdWav1, 0, mixer2, 0);
-AudioConnection          patchCord2(playSdWav1, 1, mixer2, 1);
-AudioConnection          patchCord3(playSdRaw1, 0, mixer2, 2);
-AudioConnection          patchCord4(i2s1, 1, mixer1, 2);
-AudioConnection          patchCord5(mixer2, 0, mixer1, 3);
-AudioConnection          patchCord6(drum1, 0, mixer1, 0);
-AudioConnection          patchCord7(drum2, 0, mixer1, 1);
-AudioConnection          patchCord8(mixer1, 0, i2s2, 1);
-AudioConnection          patchCord9(i2s1, 1, tuner, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=428,457
+AudioSynthSimpleDrum     drum2;          //xy=462.5,917
+AudioSynthSimpleDrum     drum1;          //xy=468.5,863
+AudioPlaySdWav           playSdWav1;     //xy=486.50000762939453,727.0000104904175
+AudioPlaySdRaw           playSdRaw1;     //xy=489.50000762939453,786.0000114440918
+AudioMixer4              mixer_wav;         //xy=785.0000076293945,744.0000114440918
+AudioMixer4              mixer_metronome;         //xy=786.5000076293945,827.0000114440918
+AudioInputI2S            i2s1;           //xy=804.5000076293945,898.0000133514404
+AudioMixer4              mixer_master;         //xy=1022.5000114440918,791.0000114440918
+AudioOutputI2S           i2s2;           //xy=1224.500015258789,783.0000114440918
+AudioConnection          patchCord1(drum2, 0, mixer_metronome, 1);
+AudioConnection          patchCord2(drum1, 0, mixer_metronome, 0);
+AudioConnection          patchCord3(playSdWav1, 0, mixer_wav, 0);
+AudioConnection          patchCord4(playSdWav1, 1, mixer_wav, 1);
+AudioConnection          patchCord5(playSdRaw1, 0, mixer_master, 1);
+AudioConnection          patchCord6(mixer_wav, 0, mixer_master, 0);
+AudioConnection          patchCord7(mixer_metronome, 0, mixer_master, 2);
+AudioConnection          patchCord8(i2s1, 1, mixer_master, 3);
+AudioConnection          patchCord9(mixer_master, 0, i2s2, 1);
+AudioConnection          patchCord10(i2s1, 1, tuner, 0);
+AudioControlSGTL5000     sgtl5000_1;
 // GUItool: end automatically generated code
 // GUItool: end automatically generated code
 
@@ -92,6 +94,8 @@ int fileNum = 0;
 int backingTrackState = 0; //0=Stopped 1=Playing  2=Paused
 int fileCount = 0;
 
+float wavVolume = 5;
+float metronomeVolume = 5;
 
 void setup() {
   // put your setup code here, to run once:
@@ -104,12 +108,18 @@ void setup() {
 
 
   delay(250);
-  AudioMemory(30);
+  AudioMemory(300);
   delay(250);
 
   sgtl5000_1.enable();
   sgtl5000_1.inputSelect(AUDIO_INPUT_LINEIN);
   sgtl5000_1.volume(1);
+
+  mixer_wav.gain(0, 0.5);
+  mixer_wav.gain(1, 0.5);
+
+  mixer_metronome.gain(0, 0.5);
+  mixer_metronome.gain(1, 0.5);
 
   drum1.frequency(220);
   drum1.length(50);
@@ -118,7 +128,7 @@ void setup() {
   drum2.frequency(440);
   drum2.length(50);
   drum2.pitchMod(0.5);
-  
+
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
   if (!(SD.begin(SDCARD_CS_PIN))) {
@@ -130,8 +140,8 @@ void setup() {
   Serial.println("initialization done.");
 
   sd = SD.open("/");
-  
-  
+
+
 
 
   attachInterrupt(digitalPinToInterrupt(PIN_IN1), checkPosition, CHANGE);
@@ -164,37 +174,75 @@ void loop() {
       else if (currentPage == "menuRecord") {
         menuBackingTrack();
       }
-      else if(currentPage == "menuBackingTrack") {
+      else if (currentPage == "menuBackingTrack") {
         menuMetronome();
       }
-      else if(currentPage == "fnBackingTrack") {
-        if(selectorSelected == false) {
-          if(selectorValue < 3) {
+      else if (currentPage == "fnBackingTrack") {
+        if (selectorSelected == false) {
+          if (selectorValue < 4) {
             selectorValue ++;
             fnBackingTrack();
-            switch(selectorValue) {
+            switch (selectorValue) {
               case 0:
-               display.setCursor(0, 0);
-               display.setTextColor(BLUE, BLACK);
-               display.setTextSize(1);
-               display.println("<<<");
-               break;
+                display.setCursor(0, 0);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(1);
+                display.println("<<<");
+                break;
               case 1:
                 display.setCursor(14, 15);
                 display.setTextColor(BLUE, BLACK);
                 display.setTextSize(2);
-                display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+                display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
+                break;
+              case 2:
+                display.setCursor(30, 50);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(2);
+                display.print(String(wavVolume).substring(0, 1));
+                break;
+              case 3:
+                display.fillRect(56, 50, 12, 15, BLACK);
+                switch (backingTrackState) {
+                  case 0:
+                    display.fillTriangle(56, 50, 56, 65, 68, 57, BLUE);
+                    break;
+                  case 1:
+                    display.fillRect(56, 50, 4, 15, BLUE);
+                    display.fillRect(64, 50, 4, 15, BLUE);
+                    break;
+                  case 2:
+                    display.fillTriangle(56, 50, 56, 65, 68, 57, BLUE);
+                    break;
+                }
+                break;
+              case 4:
+                display.fillRect(89, 50, 15, 15, BLUE);
+                break;
             }
           }
         }
         else {
-          if(fileNum < fileCount-1) {
-            fileNum ++;
+          switch (selectorValue) {
+            case 1:
+              if (fileNum < fileCount - 1) {
+                fileNum ++;
+              }
+              display.setCursor(14, 15);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
+              break;
+            case 2:
+              if (wavVolume < 9) {
+                wavVolume ++;
+              }
+              display.setCursor(30, 50);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print(String(wavVolume).substring(0, 1));
+              break;
           }
-          display.setCursor(14, 15);
-          display.setTextColor(WHITE, BLUE);
-          display.setTextSize(2);
-          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
         }
       }
       else if (currentPage == "fnMetronome") {
@@ -286,37 +334,75 @@ void loop() {
       else if (currentPage == "menuRecord") {
         menuTuner();
       }
-      else if(currentPage == "menuBackingTrack") {
+      else if (currentPage == "menuBackingTrack") {
         menuRecord();
       }
-      else if(currentPage == "fnBackingTrack") {
-        if(selectorSelected == false) {
-          if(selectorValue > 0) {
+      else if (currentPage == "fnBackingTrack") {
+        if (selectorSelected == false) {
+          if (selectorValue > 0) {
             selectorValue --;
             fnBackingTrack();
-            switch(selectorValue) {
+            switch (selectorValue) {
               case 0:
-               display.setCursor(0, 0);
-               display.setTextColor(BLUE, BLACK);
-               display.setTextSize(1);
-               display.println("<<<");
-               break;
+                display.setCursor(0, 0);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(1);
+                display.println("<<<");
+                break;
               case 1:
                 display.setCursor(14, 15);
                 display.setTextColor(BLUE, BLACK);
                 display.setTextSize(2);
-                display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+                display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
+                break;
+              case 2:
+                display.setCursor(30, 50);
+                display.setTextColor(BLUE, BLACK);
+                display.setTextSize(2);
+                display.print(String(wavVolume).substring(0, 1));
+                break;
+              case 3:
+                display.fillRect(56, 50, 12, 15, BLACK);
+                switch (backingTrackState) {
+                  case 0:
+                    display.fillTriangle(56, 50, 56, 65, 68, 57, BLUE);
+                    break;
+                  case 1:
+                    display.fillRect(56, 50, 4, 15, BLUE);
+                    display.fillRect(64, 50, 4, 15, BLUE);
+                    break;
+                  case 2:
+                    display.fillTriangle(56, 50, 56, 65, 68, 57, BLUE);
+                    break;
+                }
+                break;
+              case 4:
+                display.fillRect(89, 50, 15, 15, BLUE);
+                break;
             }
           }
         }
         else {
-          if(fileNum > 0) {
-            fileNum --;
+          switch (selectorValue) {
+            case 1:
+              if (fileNum > 0) {
+                fileNum --;
+              }
+              display.setCursor(14, 15);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
+              break;
+            case 2:
+              if (wavVolume > 0) {
+                wavVolume --;
+              }
+              display.setCursor(30, 50);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print(String(wavVolume).substring(0, 1));
+              break;
           }
-          display.setCursor(14, 15);
-          display.setTextColor(WHITE, BLUE);
-          display.setTextSize(2);
-          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
         }
       }
       else if (currentPage == "menuMetronome") {
@@ -415,7 +501,7 @@ void loop() {
       else if (currentPage == "fnTuner") {
         menuTuner();
       }
-      else if(currentPage == "menuBackingTrack") {
+      else if (currentPage == "menuBackingTrack") {
         display.fillScreen(BLACK);
         fnBackingTrack();
         display.setCursor(0, 0);
@@ -423,9 +509,9 @@ void loop() {
         display.setTextSize(1);
         display.println("<<<");
       }
-      else if(currentPage == "fnBackingTrack") {
-        if(selectorSelected == false) {
-          switch(selectorValue) {
+      else if (currentPage == "fnBackingTrack") {
+        if (selectorSelected == false) {
+          switch (selectorValue) {
             case 0:
               menuBackingTrack();
               break;
@@ -433,18 +519,46 @@ void loop() {
               display.setCursor(14, 15);
               display.setTextColor(WHITE, BLUE);
               display.setTextSize(2);
-              display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+              display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
               selectorSelected = true;
               break;
+            case 2:
+              display.setCursor(30, 50);
+              display.setTextColor(WHITE, BLUE);
+              display.setTextSize(2);
+              display.print(String(wavVolume).substring(0, 1));
+              selectorSelected = true;
+              break;
+            case 3:
+              playBgm();
+              break;
+            case 4:
+              stopBgm();
+              break;
           }
-          
+
         }
         else {
-          display.setCursor(14, 15);
-          display.setTextColor(WHITE, BLACK);
-          display.setTextSize(2);
-          display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
-          selectorSelected = false;
+          switch (selectorValue) {
+            case 1:
+              display.setCursor(14, 15);
+              display.setTextColor(WHITE, BLACK);
+              display.setTextSize(2);
+              display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
+              selectorSelected = false;
+              break;
+            case 2:
+              display.setCursor(30, 50);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.print(String(wavVolume).substring(0, 1));
+              mixer_wav.gain(0, wavVolume/10);
+              mixer_wav.gain(1, wavVolume/10);
+              Serial.println(wavVolume/10);
+              selectorSelected = false; 
+              break;
+          }
+
         }
       }
       else if (currentPage == "menuMetronome") {
@@ -457,7 +571,7 @@ void loop() {
         display.println("<<<");
       }
       else if (currentPage == "fnMetronome") {
-      
+
         if (selectorSelected == false) {
           switch (selectorValue) {
             case 0:
@@ -686,10 +800,12 @@ void fnBackingTrack() {
   display.print("<<<");
   display.setCursor(14, 15);
   display.setTextSize(2);
-  display.print("<" +fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">");
+  display.print("<" + fileList[fileNum].substring(0, fileList[fileNum].length() - 4) + ">" + String("          ").substring(0, 10 - fileList[fileNum].length()));
   display.fillRect(56, 50, 12, 15, BLACK);
   display.fillRect(89, 50, 15, 15, WHITE);
-  switch(backingTrackState) {
+  display.setCursor(30, 50);
+  display.print(String(wavVolume).substring(0, 1));
+  switch (backingTrackState) {
     case 0:
       display.fillTriangle(56, 50, 56, 65, 68, 57, WHITE);
       break;
@@ -697,21 +813,24 @@ void fnBackingTrack() {
       display.fillRect(56, 50, 4, 15, WHITE);
       display.fillRect(64, 50, 4, 15, WHITE);
       break;
+    case 2:
+      display.fillTriangle(56, 50, 56, 65, 68, 57, WHITE);
+      break;
   }
 }
 
 void refreshSD() {
   int i = 0;
-  while(true) {
+  while (true) {
     File entry = sd.openNextFile();
-    if(i > 19) {
+    if (i > 19) {
       break;
     }
-    if(!entry) {
+    if (!entry) {
       break;
     }
-    if(!entry.isDirectory()) {
-      if(String(entry.name()) != "RECORD.RAW") {
+    if (!entry.isDirectory()) {
+      if (String(entry.name()) != "RECORD.RAW") {
         fileList[i] = entry.name();
         Serial.println(fileList[i]);
         i++;
@@ -758,6 +877,23 @@ void fnMetronome() {
       display.drawCircle(92, 60, 8, WHITE);
       display.drawCircle(117, 60, 8, WHITE);
       break;
+  }
+}
+
+
+
+void playBgm() {
+  if (!playSdWav1.isPlaying()) {
+    playSdWav1.play(fileList[fileNum].c_str());
+    Serial.println(fileList[fileNum]);
+  }
+}
+
+void stopBgm() {
+  if (playSdWav1.isPlaying()) {
+    playSdWav1.stop();
+    Serial.println(fileList[fileNum]);
+    Serial.println(playSdWav1.isPlaying());
   }
 }
 
