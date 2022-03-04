@@ -241,6 +241,8 @@ void loop() {
               display.setTextColor(WHITE, BLUE);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
+              mixer_wav.gain(0, wavVolume/10);
+              mixer_wav.gain(1, wavVolume/10);
               break;
           }
         }
@@ -401,6 +403,8 @@ void loop() {
               display.setTextColor(WHITE, BLUE);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
+              mixer_wav.gain(0, wavVolume/10);
+              mixer_wav.gain(1, wavVolume/10);
               break;
           }
         }
@@ -503,6 +507,7 @@ void loop() {
       }
       else if (currentPage == "menuBackingTrack") {
         display.fillScreen(BLACK);
+        refreshSD();
         fnBackingTrack();
         display.setCursor(0, 0);
         display.setTextColor(BLUE, BLACK);
@@ -552,9 +557,6 @@ void loop() {
               display.setTextColor(BLUE, BLACK);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
-              mixer_wav.gain(0, wavVolume/10);
-              mixer_wav.gain(1, wavVolume/10);
-              Serial.println(wavVolume/10);
               selectorSelected = false; 
               break;
           }
@@ -793,7 +795,6 @@ void fnTuner() {
 
 void fnBackingTrack() {
   currentPage = "fnBackingTrack";
-  refreshSD();
   display.setCursor(0, 0);
   display.setTextColor(WHITE, BLACK);
   display.setTextSize(1);
