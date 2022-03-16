@@ -16,30 +16,50 @@
 
 // GUItool: begin automatically generated code
 AudioTuner               tuner;
-AudioSynthSimpleDrum     drum2;          //xy=606,1030
-AudioSynthSimpleDrum     drum1;          //xy=607,978
-AudioPlaySdRaw           playSdRaw1;     //xy=629,899
-AudioPlaySdWav           playSdWav1;     //xy=630,840
-AudioMixer4              mixer_wav;      //xy=929,857
-AudioMixer4              mixer_metronome; //xy=930,940
-AudioInputI2S            i2s1;           //xy=948,1011
-AudioMixer4              mixer_master;   //xy=1166,904
-AudioRecordQueue         queue1;         //xy=1374,943
-AudioOutputI2S           i2s2;           //xy=1375,900
-AudioAnalyzeFFT1024      fft1;      //xy=1381,853
-AudioConnection          patchCord1(drum2, 0, mixer_metronome, 1);
-AudioConnection          patchCord2(drum1, 0, mixer_metronome, 0);
-AudioConnection          patchCord3(playSdRaw1, 0, mixer_master, 1);
-AudioConnection          patchCord4(playSdWav1, 0, mixer_wav, 0);
-AudioConnection          patchCord5(playSdWav1, 1, mixer_wav, 1);
-AudioConnection          patchCord6(mixer_wav, 0, mixer_master, 0);
-AudioConnection          patchCord7(mixer_metronome, 0, mixer_master, 2);
-AudioConnection          patchCord8(i2s1, 1, mixer_master, 3);
-AudioConnection          patchCord9(mixer_master, 0, i2s2, 1);
-AudioConnection          patchCord10(mixer_master, queue1);
-AudioConnection          patchCord11(mixer_master, fft1);
-AudioConnection          patchCord12(i2s1, 1, tuner, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=653,740
+AudioPlaySdWav           playSdWav1;     //xy=676,421
+AudioSynthSimpleDrum     drum2;          //xy=689,534
+AudioSynthSimpleDrum     drum1;          //xy=690,482
+AudioInputI2S            i2s1;           //xy=734,691
+AudioEffectChorus        chorus1;        //xy=881,673
+AudioMixer4              mixer_metronome; //xy=949,513
+AudioPlaySdRaw           playSdRaw1;     //xy=970,383
+AudioMixer4              mixer_wav;      //xy=971,440
+AudioMixer4              mixer_chorus;         //xy=1029,704
+AudioEffectFlange        flange1;        //xy=1177,679
+AudioMixer4              mixer_flanger;         //xy=1331,710
+AudioEffectDelay         delay1;         //xy=1484,635
+AudioMixer4              mixer_delay;         //xy=1630,717
+AudioMixer4              mixer_master;   //xy=1687,472
+AudioEffectReverb        reverb1;        //xy=1783,697
+AudioMixer4              mixer_reverb;         //xy=1932,725
+AudioRecordQueue         queue1;         //xy=1984,516
+AudioOutputI2S           i2s2;           //xy=1985,473
+AudioAnalyzeFFT1024      fft1;           //xy=1991,426
+AudioConnection          patchCord1(playSdWav1, 0, mixer_wav, 0);
+AudioConnection          patchCord2(playSdWav1, 1, mixer_wav, 1);
+AudioConnection          patchCord3(drum2, 0, mixer_metronome, 1);
+AudioConnection          patchCord4(drum1, 0, mixer_metronome, 0);
+AudioConnection          patchCord5(i2s1, 1, mixer_chorus, 1);
+AudioConnection          patchCord6(i2s1, 1, chorus1, 0);
+AudioConnection          patchCord7(chorus1, 0, mixer_chorus, 0);
+AudioConnection          patchCord8(mixer_metronome, 0, mixer_master, 2);
+AudioConnection          patchCord9(playSdRaw1, 0, mixer_master, 0);
+AudioConnection          patchCord10(mixer_wav, 0, mixer_master, 1);
+AudioConnection          patchCord11(mixer_chorus, 0, mixer_flanger, 1);
+AudioConnection          patchCord12(mixer_chorus, flange1);
+AudioConnection          patchCord13(flange1, 0, mixer_flanger, 0);
+AudioConnection          patchCord14(mixer_flanger, 0, mixer_delay, 1);
+AudioConnection          patchCord15(mixer_flanger, delay1);
+AudioConnection          patchCord16(delay1, 0, mixer_delay, 0);
+AudioConnection          patchCord17(mixer_delay, reverb1);
+AudioConnection          patchCord18(mixer_delay, 0, mixer_reverb, 1);
+AudioConnection          patchCord19(mixer_master, 0, i2s2, 1);
+AudioConnection          patchCord20(mixer_master, queue1);
+AudioConnection          patchCord21(mixer_master, fft1);
+AudioConnection          patchCord22(reverb1, 0, mixer_reverb, 0);
+AudioConnection          patchCord23(mixer_reverb, 0, mixer_master, 3);
+AudioConnection          patchCord24(i2s1, 1, tuner, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=695,342
 // GUItool: end automatically generated code
 // GUItool: end automatically generated code
 
@@ -104,6 +124,16 @@ float metronomeVolume = 5;
 
 int mode = 0;  // 0=stopped, 1=recording, 2=playing
 
+
+int overdriveValue = 0;
+int distortionValue = 0;
+int fuzzValue = 0;
+int chorusValue = 0;
+int phaserValue = 0;
+int flangerValue = 0;
+int delayValue = 0;
+int reverbValue = 0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -127,6 +157,11 @@ void setup() {
 
   mixer_metronome.gain(0, 0.5);
   mixer_metronome.gain(1, 0.5);
+
+  mixer_chorus.gain(0, 0);
+  mixer_flanger.gain(0, 0);
+  mixer_delay.gain(0, 0);
+  mixer_reverb.gain(0, 0);
 
   drum1.frequency(220);
   drum1.length(50);
@@ -175,18 +210,130 @@ void loop() {
       if (currentPage == "menuEffects") {
         menuTuner();
       }
+      else if (currentPage == "fnEffects") {
+        if (selectorSelected == false) {
+          if (selectorValue < 4) {
+            selectorValue ++;
+          }
+          fnEffects();
+          effectValue(
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("<<<");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Drive       >");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Modulation  >");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Delay");
+              break;
+            case 4:
+              display.setCursor(0, 64);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Reverb");
+              break;
+          }
+        }
+        else {
+
+        }
+      }
+      else if (currentPage == "drive") {
+        if (selectorSelected == false) {
+          if (selectorValue < 3) {
+            selectorValue ++;
+          }
+          drive();
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("< Effects");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Overdrive");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Distortion");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Fuzz");
+              break;
+          }
+        }
+      }
+      else if (currentPage == "modulation") {
+        if (selectorSelected == false) {
+          if (selectorValue < 3) {
+            selectorValue ++;
+          }
+          modulation();
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("< Effects");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Chorus");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Phaser");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Flanger");
+              break;
+          }
+        }
+      }
       else if (currentPage == "menuTuner") {
         menuRecord();
       }
       else if (currentPage == "menuRecord") {
         menuBackingTrack();
       }
-      else if(currentPage == "fnRecord") {
-        if(selectorValue < 4) {
+      else if (currentPage == "fnRecord") {
+        if (selectorValue < 4) {
           selectorValue ++;
         }
         fnRecord();
-        switch(selectorValue) {
+        switch (selectorValue) {
           case 0:
             display.setTextSize(1);
             display.setTextColor(BLUE, BLACK);
@@ -286,8 +433,8 @@ void loop() {
               display.setTextColor(WHITE, BLUE);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
-              mixer_wav.gain(0, wavVolume/10);
-              mixer_wav.gain(1, wavVolume/10);
+              mixer_wav.gain(0, wavVolume / 10);
+              mixer_wav.gain(1, wavVolume / 10);
               break;
           }
         }
@@ -375,18 +522,129 @@ void loop() {
       }
     }
     else if (dir == -1) { //Encoder Turned Left
-      if (currentPage == "menuTuner") {
+      if (currentPage == "fnEffects") {
+        if (selectorSelected == false) {
+          if (selectorValue > 0) {
+            selectorValue --;
+          }
+          fnEffects();
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("<<<");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Drive       >");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Modulation  >");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Delay");
+              break;
+            case 4:
+              display.setCursor(0, 64);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Reverb");
+              break;
+          }
+        }
+        else {
+
+        }
+      }
+      else if (currentPage == "drive") {
+        if (selectorSelected == false) {
+          if (selectorValue > 0) {
+            selectorValue --;
+          }
+          drive();
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("< Effects");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Overdrive");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Distortion");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Fuzz");
+              break;
+          }
+        }
+      }
+      else if (currentPage == "modulation") {
+        if (selectorSelected == false) {
+          if (selectorValue > 0) {
+            selectorValue --;
+          }
+          modulation();
+          switch (selectorValue) {
+            case 0:
+              display.setCursor(0, 0);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("< Effects");
+              break;
+            case 1:
+              display.setCursor(0, 16);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Chorus");
+              break;
+            case 2:
+              display.setCursor(0, 32);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Phaser");
+              break;
+            case 3:
+              display.setCursor(0, 48);
+              display.setTextColor(BLUE, BLACK);
+              display.setTextSize(2);
+              display.println("Flanger");
+              break;
+          }
+        }
+      }
+      else if (currentPage == "menuTuner") {
         menuEffects();
       }
       else if (currentPage == "menuRecord") {
         menuTuner();
       }
-      else if(currentPage == "fnRecord") {
-        if(selectorValue > 0) {
+      else if (currentPage == "fnRecord") {
+        if (selectorValue > 0) {
           selectorValue --;
         }
         fnRecord();
-        switch(selectorValue) {
+        switch (selectorValue) {
           case 0:
             display.setTextSize(1);
             display.setTextColor(BLUE, BLACK);
@@ -486,8 +744,8 @@ void loop() {
               display.setTextColor(WHITE, BLUE);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
-              mixer_wav.gain(0, wavVolume/10);
-              mixer_wav.gain(1, wavVolume/10);
+              mixer_wav.gain(0, wavVolume / 10);
+              mixer_wav.gain(1, wavVolume / 10);
               break;
           }
         }
@@ -582,13 +840,73 @@ void loop() {
   if (digitalRead(1) == LOW) { //Button Pressed
     unsigned long buttonCurrentMillis = millis();
     if (buttonCurrentMillis - buttonPreviousMillis >= 300) {
-      if (currentPage == "menuTuner") {
+      if (currentPage == "menuEffects") {
+        display.fillScreen(BLACK);
+        fnEffects();
+        display.setCursor(0, 0);
+        display.setTextColor(BLUE, BLACK);
+        display.setTextSize(2);
+        display.println("<<<");
+      }
+      else if (currentPage == "fnEffects") {
+        switch (selectorValue) {
+          case 0:
+            menuEffects();
+            break;
+          case 1:
+            display.fillScreen(BLACK);
+            selectorValue = 0;
+            drive();
+            display.setCursor(0, 0);
+            display.setTextColor(BLUE, BLACK);
+            display.setTextSize(2);
+            display.println("< Effects");
+            break;
+          case 2:
+            display.fillScreen(BLACK);
+            selectorValue = 0;
+            modulation();
+            display.setCursor(0, 0);
+            display.setTextColor(BLUE, BLACK);
+            display.setTextSize(2);
+            display.println("< Effects");
+            break;
+        }
+      }
+      else if (currentPage == "drive") {
+        switch (selectorValue) {
+          case 0:
+            display.fillScreen(BLACK);
+            selectorValue = 1;
+            fnEffects();
+            display.setCursor(0, 16);
+            display.setTextColor(BLUE, BLACK);
+            display.setTextSize(2);
+            display.println("Drive       >");
+            break;
+
+        }
+      }
+      else if (currentPage == "modulation") {
+        switch (selectorValue) {
+          case 0:
+            display.fillScreen(BLACK);
+            selectorValue = 2;
+            fnEffects();
+            display.setCursor(0, 32);
+            display.setTextColor(BLUE, BLACK);
+            display.setTextSize(2);
+            display.println("Modulation  >");
+            break;
+        }
+      }
+      else if (currentPage == "menuTuner") {
         fnTuner();
       }
       else if (currentPage == "fnTuner") {
         menuTuner();
       }
-      else if(currentPage == "menuRecord") {
+      else if (currentPage == "menuRecord") {
         display.fillScreen(BLACK);
         fnRecord();
         display.setCursor(0, 0);
@@ -596,8 +914,8 @@ void loop() {
         display.setTextSize(1);
         display.println("<<<");
       }
-      else if(currentPage == "fnRecord") {
-        switch(selectorValue) {
+      else if (currentPage == "fnRecord") {
+        switch (selectorValue) {
           case 0:
             menuRecord();
             break;
@@ -682,7 +1000,7 @@ void loop() {
               display.setTextColor(BLUE, BLACK);
               display.setTextSize(2);
               display.print(String(wavVolume).substring(0, 1));
-              selectorSelected = false; 
+              selectorSelected = false;
               break;
           }
 
@@ -864,11 +1182,85 @@ void menuBackingTrack() {
   display.fillScreen(BLACK);
   display.drawBitmap(0, 0, BackingTrack, 160, 80, WHITE);
 }
+
 void menuMetronome() {
   currentPage = "menuMetronome";
   display.fillScreen(BLACK);
   display.drawBitmap(0, 0, Metronome, 160, 80, WHITE);
 }
+
+void fnEffects() {
+  currentPage = "fnEffects";
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE, BLACK);
+  display.setTextSize(2);
+  display.println("<<<");
+  display.println("Drive       >");
+  display.println("Modulation  >");
+  display.println("Delay");
+  display.println("Reverb");
+}
+void drive() {
+  currentPage = "drive";
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE, BLACK);
+  display.setTextSize(2);
+  display.println("< Effects");
+  display.println("Overdrive");
+  display.println("Distortion");
+  display.println("Fuzz");
+}
+void modulation() {
+  currentPage = "modulation";
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE, BLACK);
+  display.setTextSize(2);
+  display.println("< Effects");
+  display.println("Chorus");
+  display.println("Phaser");
+  display.println("Flanger");
+}
+
+void effectValue(String effect, int value, boolean selected) {
+  if (selected == true) {
+    display.setTextColor(WHITE, BLUE);
+    if (effect == "overdrive") {
+      overdriveValue = value;
+      display.setCursor(145, 16);
+    }
+    else if (effect == "distortion") {
+      distortionValue = value;
+      display.setCursor(145, 32);
+    }
+    else if (effect == "fuzz") {
+      fuzzValue = value;
+      display.setCursor(145, 48);
+    }
+    else if (effect == "chorus") {
+      chorusValue = value;
+      display.setCursor(145, 16);
+    }
+    else if (effect == "phaser") {
+      phaserValue = value;
+      display.setCursor(145, 32);
+    }
+    else if (effect == "flanger") {
+      flangerValue = value;
+      display.setCursor(145, 48);
+    }
+    else if (effect == "delay") {
+      delayValue = value;
+      display.setCursor(145, 48);
+    }
+    else if (effect == "reverb") {
+      reverbValue = value;
+      display.setCursor(145, 64);
+    }
+    display.println(value);
+  }
+
+}
+
 
 void fnTuner() {
   currentPage = "fnTuner";
@@ -938,10 +1330,10 @@ void fnRecord() {
   display.println("Stop Playback");
   display.fillCircle(117, 21, 7, RED);
   display.fillRoundRect(98, 31, 13, 13, 2, RED);
-  if(mode == 1) {
+  if (mode == 1) {
     display.fillCircle(154, 3, 3, RED);
   }
-  else if(mode == 2) {
+  else if (mode == 2) {
     display.fillCircle(154, 3, 3, YELLOW);
   }
   else {
@@ -1055,7 +1447,7 @@ void continueRecording() {
     byte buffer[512];
     memcpy(buffer, queue1.readBuffer(), 256);
     queue1.freeBuffer();
-    memcpy(buffer+256, queue1.readBuffer(), 256);
+    memcpy(buffer + 256, queue1.readBuffer(), 256);
     queue1.freeBuffer();
     frec.write(buffer, 512);
   }
