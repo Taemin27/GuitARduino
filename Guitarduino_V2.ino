@@ -63,7 +63,8 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=695,342
 // GUItool: end automatically generated code
 // GUItool: end automatically generated code
 
-
+#define CHORUS_DELAY_LENGTH (32*AUDIO_BLOCK_SAMPLES)
+short delayline[CHORUS_DELAY_LENGTH];
 
 #define TFT_CS  4
 #define TFT_RST 9
@@ -134,6 +135,8 @@ int flangerValue = 0;
 int delayValue = 0;
 int reverbValue = 0;
 
+
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -162,6 +165,8 @@ void setup() {
   mixer_flanger.gain(0, 0);
   mixer_delay.gain(0, 0);
   mixer_reverb.gain(0, 0);
+
+  chorus1.begin(delayline, CHORUS_DELAY_LENGTH, 1);
 
   drum1.frequency(220);
   drum1.length(50);
@@ -216,10 +221,9 @@ void loop() {
             selectorValue ++;
           }
           fnEffects();
-          effectValue(
           switch (selectorValue) {
-            case 0:
-              display.setCursor(0, 0);
+          case 0:
+            display.setCursor(0, 0);
               display.setTextColor(BLUE, BLACK);
               display.setTextSize(2);
               display.println("<<<");
@@ -251,7 +255,18 @@ void loop() {
           }
         }
         else {
-
+          switch(selectorValue) {
+            case 3:
+              if(delayValue < 9) {
+                effectValue("delay", delayValue + 1, true);
+              }
+              break;
+            case 4:
+              if(reverbValue < 9) {
+                effectValue("reverb", reverbValue + 1, true);
+              }
+              break;
+          }
         }
       }
       else if (currentPage == "drive") {
@@ -287,6 +302,25 @@ void loop() {
               break;
           }
         }
+        else {
+          switch(selectorValue) {
+            case 1:
+              if(overdriveValue < 9) {
+                effectValue("overdrive", overdriveValue + 1, true);
+              }
+              break;
+            case 2:
+              if(distortionValue < 9) {
+                effectValue("distortion", distortionValue + 1, true);
+              }
+              break;
+            case 3:
+              if(fuzzValue < 9) {
+                effectValue("fuzz", fuzzValue + 1, true);
+              }
+              break;
+          }
+        }
       }
       else if (currentPage == "modulation") {
         if (selectorSelected == false) {
@@ -318,6 +352,25 @@ void loop() {
               display.setTextColor(BLUE, BLACK);
               display.setTextSize(2);
               display.println("Flanger");
+              break;
+          }
+        }
+        else {
+          switch(selectorValue) {
+            case 1:
+              if(chorusValue < 9) {
+                effectValue("chorus", chorusValue + 1, true);
+              }
+              break;
+            case 2:
+              if(phaserValue < 9) {
+                effectValue("phaser", phaserValue + 1, true);
+              }
+              break;
+            case 3:
+              if(flangerValue < 9) {
+                effectValue("flanger", flangerValue + 1, true);
+              }
               break;
           }
         }
@@ -562,7 +615,18 @@ void loop() {
           }
         }
         else {
-
+          switch(selectorValue) {
+            case 3:
+              if(delayValue > 0) {
+                effectValue("delay", delayValue - 1, true);
+              }
+              break;
+            case 4:
+              if(reverbValue > 0) {
+                effectValue("reverb", reverbValue - 1, true);
+              }
+              break;
+          }
         }
       }
       else if (currentPage == "drive") {
@@ -598,6 +662,25 @@ void loop() {
               break;
           }
         }
+        else {
+          switch(selectorValue) {
+            case 1:
+              if(overdriveValue > 0) {
+                effectValue("overdrive", overdriveValue - 1, true);
+              }
+              break;
+            case 2:
+              if(distortionValue > 0) {
+                effectValue("distortion", distortionValue - 1, true);
+              }
+              break;
+            case 3:
+              if(fuzzValue > 0) {
+                effectValue("fuzz", fuzzValue - 1, true);
+              }
+              break;
+          }
+        }
       }
       else if (currentPage == "modulation") {
         if (selectorSelected == false) {
@@ -629,6 +712,25 @@ void loop() {
               display.setTextColor(BLUE, BLACK);
               display.setTextSize(2);
               display.println("Flanger");
+              break;
+          }
+        }
+        else {
+          switch(selectorValue) {
+            case 1:
+              if(chorusValue > 0) {
+                effectValue("chorus", chorusValue - 1, true);
+              }
+              break;
+            case 2:
+              if(phaserValue > 0) {
+                effectValue("phaser", phaserValue - 1, true);
+              }
+              break;
+            case 3:
+              if(flangerValue > 0) {
+                effectValue("flanger", flangerValue - 1, true);
+              }
               break;
           }
         }
@@ -847,6 +949,7 @@ void loop() {
         display.setTextColor(BLUE, BLACK);
         display.setTextSize(2);
         display.println("<<<");
+        
       }
       else if (currentPage == "fnEffects") {
         switch (selectorValue) {
@@ -871,6 +974,12 @@ void loop() {
             display.setTextSize(2);
             display.println("< Effects");
             break;
+          case 3:
+            effectValue("delay", delayValue, !selectorSelected);
+            break;
+          case 4:
+            effectValue("reverb", reverbValue, !selectorSelected);
+            break;
         }
       }
       else if (currentPage == "drive") {
@@ -883,6 +992,15 @@ void loop() {
             display.setTextColor(BLUE, BLACK);
             display.setTextSize(2);
             display.println("Drive       >");
+            break;
+          case 1:
+            effectValue("overdrive", overdriveValue, !selectorSelected);
+            break;
+          case 2:
+            effectValue("distortion", distortionValue, !selectorSelected);
+            break;
+          case 3:
+            effectValue("fuzz", fuzzValue, !selectorSelected);
             break;
 
         }
@@ -897,6 +1015,15 @@ void loop() {
             display.setTextColor(BLUE, BLACK);
             display.setTextSize(2);
             display.println("Modulation  >");
+            break;
+          case 1:
+            effectValue("chorus", chorusValue, !selectorSelected);
+            break;
+          case 2:
+            effectValue("phaser", phaserValue, !selectorSelected);
+            break;
+          case 3:
+            effectValue("flanger", flangerValue, !selectorSelected);
             break;
         }
       }
@@ -1199,6 +1326,8 @@ void fnEffects() {
   display.println("Modulation  >");
   display.println("Delay");
   display.println("Reverb");
+  effectValue("delay", delayValue, false);
+  effectValue("reverb", reverbValue, false);
 }
 void drive() {
   currentPage = "drive";
@@ -1209,6 +1338,9 @@ void drive() {
   display.println("Overdrive");
   display.println("Distortion");
   display.println("Fuzz");
+  effectValue("overdrive", overdriveValue, false);
+  effectValue("distortion", distortionValue, false);
+  effectValue("fuzz", fuzzValue, false);
 }
 void modulation() {
   currentPage = "modulation";
@@ -1219,46 +1351,69 @@ void modulation() {
   display.println("Chorus");
   display.println("Phaser");
   display.println("Flanger");
+  effectValue("chorus", chorusValue, false);
+  effectValue("phaser", phaserValue, false);
+  effectValue("flanger", flangerValue, false);
 }
 
 void effectValue(String effect, int value, boolean selected) {
   if (selected == true) {
     display.setTextColor(WHITE, BLUE);
-    if (effect == "overdrive") {
-      overdriveValue = value;
-      display.setCursor(145, 16);
-    }
-    else if (effect == "distortion") {
-      distortionValue = value;
-      display.setCursor(145, 32);
-    }
-    else if (effect == "fuzz") {
-      fuzzValue = value;
-      display.setCursor(145, 48);
-    }
-    else if (effect == "chorus") {
-      chorusValue = value;
-      display.setCursor(145, 16);
-    }
-    else if (effect == "phaser") {
-      phaserValue = value;
-      display.setCursor(145, 32);
-    }
-    else if (effect == "flanger") {
-      flangerValue = value;
-      display.setCursor(145, 48);
-    }
-    else if (effect == "delay") {
-      delayValue = value;
-      display.setCursor(145, 48);
-    }
-    else if (effect == "reverb") {
-      reverbValue = value;
-      display.setCursor(145, 64);
-    }
-    display.println(value);
+    selectorSelected = true;
   }
-
+  else if(selected == false) {
+    display.setTextColor(WHITE, BLACK);
+    selectorSelected = false;
+  }
+  
+  if (effect == "overdrive") {
+    overdriveValue = value;
+    display.setCursor(145, 16);
+  }
+  else if (effect == "distortion") {
+    distortionValue = value;
+    display.setCursor(145, 32);
+  }
+  else if (effect == "fuzz") {
+    fuzzValue = value;
+    display.setCursor(145, 48);
+  }
+  else if (effect == "chorus") {
+    chorusValue = value;
+    display.setCursor(145, 16);
+    if(value == 0) {
+       mixer_chorus.gain(0, 0);
+    }
+    else {
+      mixer_chorus.gain(0, 1.0);
+      chorus1.voices(value + 1);
+    }
+  }
+  else if (effect == "phaser") {
+    phaserValue = value;
+    display.setCursor(145, 32);
+  }
+  else if (effect == "flanger") {
+    flangerValue = value;
+    display.setCursor(145, 48);
+  }
+  else if (effect == "delay") {
+    delayValue = value;
+    display.setCursor(145, 48);
+  }
+  else if (effect == "reverb") {
+    reverbValue = value;
+    display.setCursor(145, 64);
+    if(value == 0) {
+      mixer_reverb.gain(0, 0);
+    }
+    else {
+      float rt = value;
+      mixer_reverb.gain(0, 0.4);
+      reverb1.reverbTime(5*(rt/9));
+    }
+  }
+  display.println(value);
 }
 
 
