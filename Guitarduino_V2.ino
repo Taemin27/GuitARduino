@@ -16,25 +16,26 @@
 
 // GUItool: begin automatically generated code
 AudioTuner               tuner;
-AudioPlaySdWav           playSdWav1;     //xy=676,421
-AudioSynthSimpleDrum     drum2;          //xy=689,534
-AudioSynthSimpleDrum     drum1;          //xy=690,482
-AudioInputI2S            i2s1;           //xy=734,691
-AudioEffectChorus        chorus1;        //xy=881,673
-AudioMixer4              mixer_metronome; //xy=949,513
-AudioPlaySdRaw           playSdRaw1;     //xy=970,383
-AudioMixer4              mixer_wav;      //xy=971,440
-AudioMixer4              mixer_chorus;         //xy=1029,704
-AudioEffectFlange        flange1;        //xy=1177,679
-AudioMixer4              mixer_flanger;         //xy=1331,710
-AudioEffectDelay         delay1;         //xy=1484,635
-AudioMixer4              mixer_delay;         //xy=1630,717
-AudioMixer4              mixer_master;   //xy=1687,472
-AudioEffectReverb        reverb1;        //xy=1783,697
-AudioMixer4              mixer_reverb;         //xy=1932,725
-AudioRecordQueue         queue1;         //xy=1984,516
-AudioOutputI2S           i2s2;           //xy=1985,473
-AudioAnalyzeFFT1024      fft1;           //xy=1991,426
+AudioPlaySdWav           playSdWav1;     //xy=403,783
+AudioSynthSimpleDrum     drum2;          //xy=416,896
+AudioSynthSimpleDrum     drum1;          //xy=417,844
+AudioInputI2S            i2s1;           //xy=461,1053
+AudioEffectChorus        chorus1;        //xy=608,1035
+AudioMixer4              mixer_metronome; //xy=676,875
+AudioPlaySdRaw           playSdRaw1;     //xy=697,745
+AudioMixer4              mixer_wav;      //xy=698,802
+AudioMixer4              mixer_chorus;   //xy=756,1066
+AudioEffectFlange        flange1;        //xy=904,1041
+AudioMixer4              mixer_flanger;  //xy=1058,1072
+AudioEffectDelay         delay1;         //xy=1211,997
+AudioMixer4              mixer_delay;    //xy=1357,1079
+AudioMixer4              mixer_master;   //xy=1414,834
+AudioAmplifier           amp1;           //xy=1513.714370727539,1054.2857360839844
+AudioEffectReverb        reverb1;        //xy=1642.8571891784668,1054.7142906188965
+AudioRecordQueue         queue1;         //xy=1711,878
+AudioOutputI2S           i2s2;           //xy=1712,835
+AudioAnalyzeFFT1024      fft1;           //xy=1718,788
+AudioMixer4              mixer_reverb;   //xy=1791.8572540283203,1085.5713558197021
 AudioConnection          patchCord1(playSdWav1, 0, mixer_wav, 0);
 AudioConnection          patchCord2(playSdWav1, 1, mixer_wav, 1);
 AudioConnection          patchCord3(drum2, 0, mixer_metronome, 1);
@@ -51,19 +52,22 @@ AudioConnection          patchCord13(flange1, 0, mixer_flanger, 0);
 AudioConnection          patchCord14(mixer_flanger, 0, mixer_delay, 1);
 AudioConnection          patchCord15(mixer_flanger, delay1);
 AudioConnection          patchCord16(delay1, 0, mixer_delay, 0);
-AudioConnection          patchCord17(mixer_delay, reverb1);
-AudioConnection          patchCord18(mixer_delay, 0, mixer_reverb, 1);
+AudioConnection          patchCord17(mixer_delay, 0, mixer_reverb, 1);
+AudioConnection          patchCord18(mixer_delay, amp1);
 AudioConnection          patchCord19(mixer_master, 0, i2s2, 1);
 AudioConnection          patchCord20(mixer_master, queue1);
 AudioConnection          patchCord21(mixer_master, fft1);
-AudioConnection          patchCord22(reverb1, 0, mixer_reverb, 0);
-AudioConnection          patchCord23(mixer_reverb, 0, mixer_master, 3);
-AudioConnection          patchCord24(i2s1, 1, tuner, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=695,342
+AudioConnection          patchCord22(amp1, reverb1);
+AudioConnection          patchCord23(reverb1, 0, mixer_reverb, 0);
+AudioConnection          patchCord24(mixer_reverb, 0, mixer_master, 3);
+AudioConnection          patchCord25(i2s1, 1, tuner, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=422,704
 // GUItool: end automatically generated code
 // GUItool: end automatically generated code
 
-#define CHORUS_DELAY_LENGTH (32*AUDIO_BLOCK_SAMPLES)
+
+
+#define CHORUS_DELAY_LENGTH (64*AUDIO_BLOCK_SAMPLES)
 short delayline[CHORUS_DELAY_LENGTH];
 
 #define TFT_CS  4
@@ -166,6 +170,8 @@ void setup() {
   mixer_delay.gain(0, 0);
   mixer_reverb.gain(0, 0);
 
+  amp1.gain(0.5);
+  
   chorus1.begin(delayline, CHORUS_DELAY_LENGTH, 1);
 
   drum1.frequency(220);
@@ -1409,7 +1415,7 @@ void effectValue(String effect, int value, boolean selected) {
     }
     else {
       float rt = value;
-      mixer_reverb.gain(0, 0.4);
+      mixer_reverb.gain(0, 1);
       reverb1.reverbTime(5*(rt/9));
     }
   }
