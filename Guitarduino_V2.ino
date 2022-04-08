@@ -15,80 +15,83 @@
 
 // GUItool: begin automatically generated code
 AudioTuner               tuner;
-AudioInputI2S            i2s1;           //xy=73,314
-AudioMixer4              mixer_chorus;   //xy=136,608
-AudioEffectWaveshaper    overdrive1;     //xy=219,284
-AudioEffectFlange        flange1;        //xy=292,570
-AudioMixer4              mixer_overdrive; //xy=389,326
-AudioMixer4              mixer_flanger;  //xy=462,606
-AudioEffectWaveshaper    distortion1;    //xy=561,291
-AudioEffectDelay         delay1;         //xy=615,527
-AudioMixer4              mixer_distortion; //xy=735,334
-AudioMixer4              mixer_delay;    //xy=825,610
-AudioEffectWaveshaper    fuzz1;          //xy=905,286
-AudioAmplifier           amp1;           //xy=962,564
-AudioMixer4              mixer_fuzz;     //xy=1037,349
-AudioEffectReverb        reverb1;        //xy=1108,564
-AudioEffectChorus        chorus1;        //xy=1233,334
-AudioMixer4              mixer_reverb;   //xy=1277,607
-AudioAmplifier           amp_master;           //xy=1455.5,612
-AudioPlaySdWav           playSdWav1;     //xy=1540,294
-AudioSynthSimpleDrum     drum1;          //xy=1553,343
-AudioSynthSimpleDrum     drum2;          //xy=1553,389
-AudioMixer4              mixer_master;   //xy=1648,594
-AudioMixer4              mixer_metronome; //xy=1809,389
-AudioPlaySdRaw           playSdRaw1;     //xy=1830,259
-AudioMixer4              mixer_wav;      //xy=1831,316
-AudioRecordQueue         queue1;         //xy=1835,641
-AudioOutputI2S           i2s2;           //xy=1836,598
-AudioRecordQueue         queue2;         //xy=1836,685
-AudioConnection          patchCord1(i2s1, 1, overdrive1, 0);
-AudioConnection          patchCord2(i2s1, 1, mixer_overdrive, 1);
-AudioConnection          patchCord3(mixer_chorus, 0, mixer_flanger, 1);
-AudioConnection          patchCord4(mixer_chorus, flange1);
-AudioConnection          patchCord5(overdrive1, 0, mixer_overdrive, 0);
-AudioConnection          patchCord6(flange1, 0, mixer_flanger, 0);
-AudioConnection          patchCord7(mixer_overdrive, distortion1);
-AudioConnection          patchCord8(mixer_overdrive, 0, mixer_distortion, 1);
-AudioConnection          patchCord9(mixer_flanger, delay1);
-AudioConnection          patchCord10(mixer_flanger, 0, mixer_delay, 3);
-AudioConnection          patchCord11(distortion1, 0, mixer_distortion, 0);
-AudioConnection          patchCord12(delay1, 0, mixer_delay, 0);
-AudioConnection          patchCord13(delay1, 1, mixer_delay, 1);
-AudioConnection          patchCord14(delay1, 2, mixer_delay, 2);
-AudioConnection          patchCord15(mixer_distortion, fuzz1);
-AudioConnection          patchCord16(mixer_distortion, 0, mixer_fuzz, 1);
-AudioConnection          patchCord17(mixer_delay, 0, mixer_reverb, 1);
-AudioConnection          patchCord18(mixer_delay, amp1);
-AudioConnection          patchCord19(fuzz1, 0, mixer_fuzz, 0);
-AudioConnection          patchCord20(amp1, reverb1);
-AudioConnection          patchCord21(mixer_fuzz, 0, mixer_chorus, 1);
-AudioConnection          patchCord22(mixer_fuzz, chorus1);
-AudioConnection          patchCord23(reverb1, 0, mixer_reverb, 0);
-AudioConnection          patchCord24(chorus1, 0, mixer_chorus, 0);
-AudioConnection          patchCord25(mixer_reverb, amp_master);
-AudioConnection          patchCord26(amp_master, 0, mixer_master, 3);
-AudioConnection          patchCord27(playSdWav1, 0, mixer_wav, 0);
-AudioConnection          patchCord28(playSdWav1, 1, mixer_wav, 1);
-AudioConnection          patchCord29(drum1, 0, mixer_metronome, 0);
-AudioConnection          patchCord30(drum2, 0, mixer_metronome, 1);
-AudioConnection          patchCord31(mixer_master, 0, i2s2, 1);
-AudioConnection          patchCord32(mixer_master, queue1);
-AudioConnection          patchCord33(mixer_master, queue2);
-AudioConnection          patchCord34(mixer_metronome, 0, mixer_master, 2);
-AudioConnection          patchCord35(playSdRaw1, 0, mixer_master, 0);
-AudioConnection          patchCord36(mixer_wav, 0, mixer_master, 1);
-AudioConnection          patchCord37(i2s1, 1, tuner, 0);
-AudioControlSGTL5000     sgtl5000_1;     //xy=1550,234
+AudioMixer4              mixer_chorus;   //xy=127,613
+AudioInputI2S            i2s1;           //xy=217,331
+AudioEffectFlange        flange1;        //xy=282,584
+AudioEffectWaveshaper    overdrive1;     //xy=363,301
+AudioMixer4              mixer_flanger;  //xy=452,620
+AudioMixer4              mixer_overdrive; //xy=533,343
+AudioEffectDelay         delay1;         //xy=623,541
+AudioEffectWaveshaper    distortion1;    //xy=705,308
+AudioMixer4              mixer_decrease;         //xy=809,528
+AudioMixer4              mixer_distortion; //xy=879,351
+AudioMixer4              mixer_delay;    //xy=967,625
+AudioEffectWaveshaper    fuzz1;          //xy=1049,303
+AudioAmplifier           amp1;           //xy=1114,579
+AudioMixer4              mixer_fuzz;     //xy=1181,366
+AudioEffectReverb        reverb1;        //xy=1252,581
+AudioEffectChorus        chorus1;        //xy=1377,351
+AudioMixer4              mixer_reverb;   //xy=1425,631
+AudioAmplifier           amp_master;     //xy=1599,629
+AudioPlaySdWav           playSdWav1;     //xy=1684,311
+AudioSynthSimpleDrum     drum1;          //xy=1697,360
+AudioSynthSimpleDrum     drum2;          //xy=1697,406
+AudioMixer4              mixer_master;   //xy=1794,611
+AudioMixer4              mixer_metronome; //xy=1953,406
+AudioPlaySdRaw           playSdRaw1;     //xy=1974,276
+AudioMixer4              mixer_wav;      //xy=1975,333
+AudioRecordQueue         queue1;         //xy=1979,658
+AudioOutputI2S           i2s2;           //xy=1980,615
+AudioRecordQueue         queue2;         //xy=1980,702
+AudioConnection          patchCord1(mixer_chorus, 0, mixer_flanger, 1);
+AudioConnection          patchCord2(mixer_chorus, flange1);
+AudioConnection          patchCord3(i2s1, 1, overdrive1, 0);
+AudioConnection          patchCord4(i2s1, 1, mixer_overdrive, 1);
+AudioConnection          patchCord5(flange1, 0, mixer_flanger, 0);
+AudioConnection          patchCord6(overdrive1, 0, mixer_overdrive, 0);
+AudioConnection          patchCord7(mixer_flanger, delay1);
+AudioConnection          patchCord8(mixer_flanger, 0, mixer_delay, 1);
+AudioConnection          patchCord9(mixer_overdrive, distortion1);
+AudioConnection          patchCord10(mixer_overdrive, 0, mixer_distortion, 1);
+AudioConnection          patchCord11(delay1, 0, mixer_decrease, 0);
+AudioConnection          patchCord12(delay1, 1, mixer_decrease, 1);
+AudioConnection          patchCord13(delay1, 2, mixer_decrease, 2);
+AudioConnection          patchCord14(delay1, 3, mixer_decrease, 3);
+AudioConnection          patchCord15(distortion1, 0, mixer_distortion, 0);
+AudioConnection          patchCord16(mixer_decrease, 0, mixer_delay, 0);
+AudioConnection          patchCord17(mixer_distortion, fuzz1);
+AudioConnection          patchCord18(mixer_distortion, 0, mixer_fuzz, 1);
+AudioConnection          patchCord19(mixer_delay, 0, mixer_reverb, 1);
+AudioConnection          patchCord20(mixer_delay, amp1);
+AudioConnection          patchCord21(fuzz1, 0, mixer_fuzz, 0);
+AudioConnection          patchCord22(amp1, reverb1);
+AudioConnection          patchCord23(mixer_fuzz, 0, mixer_chorus, 1);
+AudioConnection          patchCord24(mixer_fuzz, chorus1);
+AudioConnection          patchCord25(reverb1, 0, mixer_reverb, 0);
+AudioConnection          patchCord26(chorus1, 0, mixer_chorus, 0);
+AudioConnection          patchCord27(mixer_reverb, amp_master);
+AudioConnection          patchCord28(amp_master, 0, mixer_master, 3);
+AudioConnection          patchCord29(playSdWav1, 0, mixer_wav, 0);
+AudioConnection          patchCord30(playSdWav1, 1, mixer_wav, 1);
+AudioConnection          patchCord31(drum1, 0, mixer_metronome, 0);
+AudioConnection          patchCord32(drum2, 0, mixer_metronome, 1);
+AudioConnection          patchCord33(mixer_master, 0, i2s2, 1);
+AudioConnection          patchCord34(mixer_master, queue1);
+AudioConnection          patchCord35(mixer_master, queue2);
+AudioConnection          patchCord36(mixer_metronome, 0, mixer_master, 2);
+AudioConnection          patchCord37(playSdRaw1, 0, mixer_master, 0);
+AudioConnection          patchCord38(mixer_wav, 0, mixer_master, 1);
+AudioConnection          patchCord39(i2s1, 1, tuner, 0);
+AudioControlSGTL5000     sgtl5000_1;     //xy=1694,251
 // GUItool: end automatically generated code
 
 
 
-float ODShape[9] = {-1.0, -0.9, -0.7, -0.4, 0.0, 0.42, 0.75, 0.95, 1.0};
-float DSShape[9] = {-0.9, -1.0, -0.9, -0.5, 0.0, 0.53, 0.95, 1.0, 0.94};
-float FZShape[9] = {-1.0, -1.0, -1.0, -0.5, 0.0, 0.5, 1.0, 1.0, 1.0};
+float ODShape[9] = { -1.0, -0.9, -0.7, -0.4, 0.0, 0.42, 0.75, 0.95, 1.0};
+float DSShape[9] = { -0.9, -1.0, -0.9, -0.5, 0.0, 0.53, 0.95, 1.0, 0.94};
+float FZShape[9] = { -1.0, -1.0, -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 1.0};
 
-#define CHORUS_DELAY_LENGTH (64*AUDIO_BLOCK_SAMPLES)
+#define CHORUS_DELAY_LENGTH (128*AUDIO_BLOCK_SAMPLES)
 short delayline[CHORUS_DELAY_LENGTH];
 
 #define TFT_CS  4
@@ -168,17 +171,14 @@ int next;
 
 int16_t* dptrs;
 
-bool outputEnabled = true;
+bool outputEnabled = false;
 void processQueues(void) {
   dptrs = queue2.readBuffer();
-
-  // actual processing:
   if (outputEnabled)
   {
     for (int j = 0; j < AUDIO_BLOCK_SAMPLES; j++) {
       Serial.printf("%d ", dptrs[j]);
       Serial.println();
-      //delay(10); // slow graph down a bit
     }
   }
 
@@ -196,7 +196,7 @@ void setup() {
   display.invertDisplay(true);
 
   delay(250);
-  AudioMemory(500);
+  AudioMemory(700);
   delay(250);
 
   sgtl5000_1.enable();
@@ -218,6 +218,11 @@ void setup() {
   mixer_delay.gain(0, 0);
   mixer_reverb.gain(0, 0);
 
+  mixer_decrease.gain(0, 0.4);
+  mixer_decrease.gain(1, 0.3);
+  mixer_decrease.gain(2, 0.2);
+  mixer_decrease.gain(3, 0.1);
+
   amp1.gain(0.4);
   amp_master.gain(1);
 
@@ -236,22 +241,22 @@ void setup() {
   overdrive1.shape(ODShape, 9);
   distortion1.shape(DSShape, 9);
   fuzz1.shape(FZShape, 9);
-  
+
 
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
   if (!(SD.begin(SDCARD_CS_PIN))) {
-    
+
     display.fillScreen(BLACK);
     display.drawBitmap(0, 0, NoSDCard, 160, 80, WHITE);
     return;
   }
-  
+
 
   sd = SD.open("/");
 
 
-  
+
 
   attachInterrupt(digitalPinToInterrupt(PIN_IN1), checkPosition, CHANGE);
   attachInterrupt(digitalPinToInterrupt(PIN_IN2), checkPosition, CHANGE);
@@ -390,7 +395,7 @@ void loop() {
               }
               break;
             case 4:
-              if(gainValue < 9) {
+              if (gainValue < 9) {
                 effectValue("gain", gainValue + 1, true);
               }
               break;
@@ -761,7 +766,7 @@ void loop() {
               }
               break;
             case 4:
-              if(gainValue > 0) {
+              if (gainValue > 0) {
                 effectValue("gain", gainValue - 1, true);
               }
               break;
@@ -1371,33 +1376,33 @@ void loop() {
     }
   }
 
-  if (osc % 1000 == 0) {
-    osc = 0;
-    if (queue2.available()) {
-      //AudioNoInterrupts();
-      processQueues();
-      next = 250;
+  if (outputEnabled == true) {
+    if (osc % 1000 == 0) {
+      osc = 0;
+      if (queue2.available()) {
+        //AudioNoInterrupts();
+        processQueues();
+        next = 250;
+      }
+      else
+        //AudioInterrupts();
+
+        if (Serial.available())
+        {
+          while (Serial.available())
+            Serial.read();
+
+          outputEnabled = !outputEnabled;
+        }
+      if (--next < 0)
+      {
+        next = 250;
+        Serial.print('.');
+      }
     }
-    else
-      //AudioInterrupts();
-
-    if (Serial.available())
-    {
-      while (Serial.available())
-        Serial.read();
-
-      outputEnabled = !outputEnabled;
-    }
-
-
-    if (--next < 0)
-    {
-      next = 250;
-      Serial.print('.');
-    }
+    osc ++;
   }
-  osc ++;
-  
+
   if (mode == 2) {
     continuePlaying();
   }
@@ -1491,37 +1496,37 @@ void effectValue(String effect, int value, boolean selected) {
   if (effect == "overdrive") {
     overdriveValue = value;
     display.setCursor(145, 16);
-    if(value == 0) {
+    if (value == 0) {
       mixer_overdrive.gain(0, 0);
       mixer_overdrive.gain(1, 1);
     }
     else {
-      mixer_overdrive.gain(0, value/9);
-      mixer_overdrive.gain(1, 1-(value/9));
+      mixer_overdrive.gain(0, value / 9);
+      mixer_overdrive.gain(1, 1 - (value / 9));
     }
   }
   else if (effect == "distortion") {
     distortionValue = value;
     display.setCursor(145, 32);
-    if(value == 0) {
+    if (value == 0) {
       mixer_distortion.gain(0, 0);
       mixer_distortion.gain(1, 1);
     }
     else {
-      mixer_distortion.gain(0, value/9);
-      mixer_distortion.gain(1, 1-(value/9));
+      mixer_distortion.gain(0, value / 9);
+      mixer_distortion.gain(1, 1 - (value / 9));
     }
   }
   else if (effect == "fuzz") {
     fuzzValue = value;
     display.setCursor(145, 48);
-    if(value == 0) {
+    if (value == 0) {
       mixer_fuzz.gain(0, 0);
       mixer_fuzz.gain(1, 1);
     }
     else {
-      mixer_fuzz.gain(0, value/9);
-      mixer_fuzz.gain(1, 1-(value/9));
+      mixer_fuzz.gain(0, value / 9);
+      mixer_fuzz.gain(1, 1 - (value / 9));
     }
   }
   else if (effect == "chorus") {
@@ -1546,6 +1551,16 @@ void effectValue(String effect, int value, boolean selected) {
   else if (effect == "delay") {
     delayValue = value;
     display.setCursor(145, 48);
+    if(value == 0) {
+      mixer_delay.gain(0, 0);
+    }
+    else {
+      mixer_delay.gain(0, 0.5);
+      delay1.delay(0, value * 50);
+      delay1.delay(1, value * 100);
+      delay1.delay(2, value * 150);
+      delay1.delay(3, value * 200);
+    }
   }
   else if (effect == "reverb") {
     reverbValue = value;
@@ -1559,10 +1574,10 @@ void effectValue(String effect, int value, boolean selected) {
       reverb1.reverbTime(3 * (rt / 9));
     }
   }
-  else if(effect == "gain") {
+  else if (effect == "gain") {
     gainValue = value;
     display.setCursor(145, 64);
-    amp_master.gain(1 + (value/3));
+    amp_master.gain(1 + (value / 2));
   }
   display.println(value);
 }
